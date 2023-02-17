@@ -4,29 +4,25 @@ declare(strict_types=1);
 
 namespace Sdm888\ChuckNorrisJokes;
 
+use GuzzleHttp\Client;
+
 class JokeFactory
 {
-    /** @var array<string> */
-    protected array $jokes = [
-        'Chuck Norris\' tears cure cancer. Too bad he has never cried.',
-        'Chuck Norris counted to infinity... Twice.',
-        'Guns don\'t kill people. Chuck Norris kills People.',
-    ];
+    protected const API_ENDPOINT = 'https://api.chucknorris.io/jokes/random';
 
-    /**
-     * @param array<string>|null $jokes
-     */
-    public function __construct(?array $jokes = null)
+    protected ?Client $client;
+
+    public function __construct(?Client $client = null)
     {
-        if ($jokes) {
-            $this->jokes = $jokes;
-        }
+        $this->client = $client ?? new Client();
     }
 
     public function getRandomJoke(): string
     {
-        return $this->jokes[
-            array_rand($this->jokes)
-        ];
+        $response = $this->client->get(self::API_ENDPOINT);
+
+        $content = json_decode($response->getBody()->getContents(), true);
+
+        return $content['value'];
     }
 }
